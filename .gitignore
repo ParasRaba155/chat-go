@@ -1,0 +1,15 @@
+# exclude binaries
+bin
+
+# exclude env files
+.env.dev
+
+# editor files
+.vscode
+
+# log files
+logs
+*.log
+
+# vendor directory
+vendor

@@ -1,0 +1,21 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "user/queries/user.queries.sql"
+    schema: "migrate/migrations/000001_create_user_table.up.sql"
+    gen:
+      go:
+        package: "queries"
+        sql_package: "pgx/v5"
+        out: "user/queries"
+        emit_empty_slices: false
+        emit_json_tags: true
+        emit_enum_valid_method: true
+        emit_all_enum_values: true
+        json_tags_case_style: snake
+        emit_interface: false
+        overrides:
+          - db_type: "uuid"
+            go_type: "github.com/jackc/pgtype.UUID"
+          - column: "users.password_hash"
+            go_struct_tag: 'json:"-"'
