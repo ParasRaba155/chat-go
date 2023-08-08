@@ -39,10 +39,7 @@ func main() {
 		logger.Fatal("could not create migration source instance", zap.Error(err))
 	}
 
-	logger.Sugar().Infof("m = %+v", m)
-
-	err = m.Up()
-	if err != nil {
+	if err = m.Up(); err != nil {
 		logger.Fatal("could not migrate up", zap.Error(err))
 	}
 }

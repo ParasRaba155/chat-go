@@ -3,8 +3,8 @@ GO := $(HOME)/go/bin/go1.20.5
 build:
 	$(GO) build -o ./bin/app
 
-run:build
-	./bin/app
+run-dev:build
+	./bin/app --environment dev
 
 tidy:
 	$(GO) mod tidy

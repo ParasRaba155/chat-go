@@ -56,9 +56,9 @@ type Session struct {
 	MaxAgeSec  int
 }
 
-// mustSetEnv will read the config file and set the env variable
+// setEnv will read the config file and set the env variable
 // in the app and it will panic on any error
-func mustSetEnv(filename string) error {
+func setEnv(filename string) error {
 	configFile, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -86,10 +86,9 @@ func mustSetEnv(filename string) error {
 	return nil
 }
 
-// LoadConfig takes the filename of env file and returns the
-// or it panics on any error
+// LoadConfig takes the filename of env file and return config or error
 func LoadConfig(filename string) (Config, error) {
-	if err := mustSetEnv(filename); err != nil {
+	if err := setEnv(filename); err != nil {
 		return Config{}, err
 	}
 

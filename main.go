@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,15 +14,22 @@ import (
 	"app/logger"
 )
 
+var env = flag.String("environment", "dev", "set the application environment")
+
 func main() {
 	flag.Parse()
 
-	appConfig, err := config.LoadConfig(".env.dev")
+	if *env != "dev" && *env != "prod" && *env != "staging" {
+		panic(fmt.Sprintf("the app only has 'dev', 'prod' & 'staging' environemnt and no %s", *env))
+	}
+
+	appConfig, err := config.LoadConfig(fmt.Sprintf(".env.%s", *env))
 	if err != nil {
 		panic(err)
 	}
 
 	appLogger := logger.New(appConfig.LogFileLoc)
+	appLogger.Info("application started", zap.String("ENVIRONMENT_NAME", *env))
 
 	pool, err := conn.ConnectToPG(&appConfig.Database, appLogger)
 	if err != nil {
