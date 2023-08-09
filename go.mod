@@ -1,6 +1,6 @@
 module app
 
-go 1.20
+go 1.21.0
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -22,7 +22,7 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
-	github.com/lib/pq v1.10.7 // indirect
+	github.com/lib/pq v1.10.2 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
