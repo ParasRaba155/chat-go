@@ -18,3 +18,6 @@ gen-data:
 
 run-migrate: 
 	go run migrate/main.go
+
+install-dev:
+	scripts/install.sh
