@@ -1,8 +1,8 @@
 build:
 	go build -o ./bin/app
 
-run-dev:build
-	./bin/app --environment dev
+run-dev:
+	air ## air is hot reloader for golang
 
 tidy:
 	go mod tidy

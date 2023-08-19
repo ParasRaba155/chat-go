@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	basePrefix = "blog-session:"
+	basePrefix = "chat-session:"
 )
 
 var (

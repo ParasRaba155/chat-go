@@ -1,5 +1,18 @@
 version: '3.7'
 services:
+  chat_api:
+    build:
+      context: .
+    env_file:
+      - .env.dev
+    image: api_img
+    container_name: chat_api
+    ports:
+      - 8080:8080
+    restart: always
+    depends_on:
+      - chat_data
+      - redis
   chat_data:
     image: postgres:latest
     container_name: chat_data
@@ -29,10 +42,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     volumes:
       - pgadmin-data:/var/lib/pgadmin
-
 volumes:
   pgdata:
     driver: local
   pgadmin-data:
     driver: local
-

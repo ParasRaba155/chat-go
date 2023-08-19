@@ -27,7 +27,7 @@ func SendResponse(w http.ResponseWriter, msg string, data interface{}, statuscod
 	by, err := json.Marshal(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("some error could not send response"))
+		w.Write([]byte("{\"error\":\"some error could not send response\"}"))
 	}
 
 	w.WriteHeader(statuscode)

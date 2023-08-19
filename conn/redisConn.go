@@ -13,7 +13,7 @@ import (
 func NewRedisClient(cfg *config.Redis, l *zap.Logger) (redis.Client, error) {
 	rc := redis.NewClient(&redis.Options{
 		Addr:        cfg.Address,
-		Username:    cfg.Address,
+		Username:    cfg.Username,
 		Password:    cfg.Password,
 		DB:          cfg.DB,
 		MaxRetries:  cfg.MaxRetries,

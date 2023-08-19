@@ -89,7 +89,7 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 		httputil.SendResponse(w, err.Error(), nil, http.StatusBadRequest, false)
 		return
 	}
-	sessionKey, err := c.RedisRepo.CreateSession(r.Context(), req.Email, c.SessionConfig.MaxAgeSec)
+	sessionKey, err := c.RedisRepo.CreateSession(r.Context(), req.Email, c.SessionConfig.MaxAgeSec/60)
 	if err != nil {
 		c.Logger.Error("could not generate session key", zap.String("operation", "UserLogin"), zap.Error(err))
 		httputil.SendResponse(w, err.Error(), nil, http.StatusInternalServerError, false)
@@ -100,7 +100,7 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 
 	resp := user.ToUserWithToken(token)
 
-	httputil.SendResponse(w, "successfully registered the user", resp, http.StatusOK, true)
+	httputil.SendResponse(w, "login successful", resp, http.StatusOK, true)
 	c.Logger.Info("Logged Successfully", zap.String("email", resp.Email))
 }
 
@@ -116,6 +116,7 @@ func (c *Controller) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		httputil.SendResponse(w, "could not read the request", nil, http.StatusBadRequest, false)
 		return
 	}
+
 	user := httputil.GetUserFromRequestContext(r)
 	err = c.UserService.ResetPassword(user.Email, req.CurrentPass, req.NewPass, req.ConfirmPass)
 	if err != nil {

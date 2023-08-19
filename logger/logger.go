@@ -12,8 +12,17 @@ import (
 )
 
 func New(logDir string) *zap.Logger {
-	core := zapcore.NewTee(fileCore(logDir), consoleCore())
-	return zap.New(core)
+	env := os.Getenv("ENVIRONMENT_NAME")
+
+	if env == "prod" || env == "production" {
+		return zap.New(fileCore(logDir))
+	}
+	return zap.New(
+		zapcore.NewTee(
+			fileCore(logDir),
+			consoleCore(),
+		),
+	)
 }
 
 // fileCore returns core for log file
@@ -85,7 +94,7 @@ func consoleCore() zapcore.Core {
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 	}
 	encoder := zapcore.NewConsoleEncoder(encodeConfig)
-	return zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), zapcore.InfoLevel)
+	return zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), zapcore.DebugLevel)
 }
 
 func createEmptyLogFile(directoryPath, filename string) (*os.File, error) {
