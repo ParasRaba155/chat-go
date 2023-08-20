@@ -10,7 +10,6 @@ import (
 
 	userQueries "app/user/queries"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
@@ -37,9 +36,7 @@ func Route(r *mux.Router, db *pgxpool.Pool, l *zap.Logger, c *config.Config, rc 
 	r.HandleFunc("/api/v1/user/{email}", userController.GetUserByEmail).Methods(http.MethodGet)
 	r.HandleFunc("/api/v1/user/reset-password", userController.ResetPassword).Methods(http.MethodPatch)
 
-	room := chat.NewRoom(uuid.New())
-	go room.Run(l)
 	r.HandleFunc("/api/v1/room/{receiver}", func(w http.ResponseWriter, r *http.Request) {
-		chat.Handler(room, l, rc, w, r)
+		chat.Handler(l, rc, w, r)
 	})
 }

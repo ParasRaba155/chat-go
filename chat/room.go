@@ -28,6 +28,7 @@ func NewRoom(id uuid.UUID) *room {
 	}
 }
 
+// should be used in go routine
 func (r *room) Run(l *zap.Logger) {
 	for {
 		select {

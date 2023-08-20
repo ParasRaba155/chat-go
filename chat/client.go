@@ -8,6 +8,7 @@ import (
 
 	http_util "app/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
@@ -83,8 +84,6 @@ func (c *client) readPump(l *zap.Logger) {
 		if err != nil {
 			l.Error("redis msg recive error", zap.Error(err))
 		}
-		//subChan := <-subscriber.Channel()
-		//l.Debug("subsribe step 3")
 		l.Debug("redis msg", zap.Any("redis_msg", redisMsg))
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 		c.room.broadcast <- message
@@ -98,7 +97,7 @@ func (c *client) readPump(l *zap.Logger) {
 // writes from this goroutine
 func (c *client) writePump(l *zap.Logger) {
 	ticker := time.NewTicker(pingPeriod)
-	l.Info("started Writing")
+	l.Debug("started Writing")
 
 	defer func() {
 		ticker.Stop()
@@ -119,6 +118,8 @@ func (c *client) writePump(l *zap.Logger) {
 			if err != nil {
 				return
 			}
+            defer w.Close()
+
 			w.Write(message)
 
 			n := len(c.send)
@@ -127,7 +128,7 @@ func (c *client) writePump(l *zap.Logger) {
 				msg := <-c.send
 				w.Write(msg)
 				c.redis.Publish(context.TODO(), c.room.id.String(), msg)
-				l.Info("published the message")
+				l.Debug("published the message")
 			}
 
 			if err := w.Close(); err != nil {
@@ -143,32 +144,47 @@ func (c *client) writePump(l *zap.Logger) {
 	}
 }
 
-func Handler(roomConfig *room, l *zap.Logger, rc *redis.Client, w http.ResponseWriter, r *http.Request) {
+func Handler(l *zap.Logger, rc *redis.Client, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		l.Error("upgrading to websocket failed", zap.Error(err))
+        w.Write([]byte("could not proccess the websocket request"))
+        w.WriteHeader(http.StatusInternalServerError)
+        return 
 	}
+
+    roomID, err := uuid.NewRandom()
+    if err != nil {
+        l.Error("error generating room id", zap.Error(err))
+        w.Write([]byte(""))
+        w.WriteHeader(http.StatusInternalServerError)
+        return 
+    }
+
+	room := NewRoom(roomID)
+	go room.Run(l)
 
 	reciver, ok := mux.Vars(r)["receiver"]
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("no receiver"))
+        return 
 	}
 
 	user := http_util.GetUserFromRequestContext(r)
 
 	client := &client{
-		room:        roomConfig,
+		room:        room,
 		conn:        conn,
 		send:        make(chan []byte, 256),
 		senderMail:  user.Email,
 		reciverMail: reciver,
 		redis:       rc,
 	}
-	l.Info("registering client in room")
+	l.Debug("registering client in room")
 
 	client.room.register <- client
-	l.Info("registered client in room")
+	l.Debug("registered client in room")
 
 	go client.writePump(l)
 	go client.readPump(l)
