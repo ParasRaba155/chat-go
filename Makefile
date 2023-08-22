@@ -21,3 +21,6 @@ run-migrate:
 
 install-dev:
 	scripts/install.sh
+
+migrate-create:
+	scripts/migrate.sh
