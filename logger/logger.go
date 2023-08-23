@@ -13,15 +13,20 @@ import (
 
 func New(logDir string) *zap.Logger {
 	env := os.Getenv("ENVIRONMENT_NAME")
+	opts := []zap.Option{
+		zap.AddCallerSkip(1),
+		zap.AddStacktrace(zapcore.ErrorLevel),
+	}
 
 	if env == "prod" || env == "production" {
-		return zap.New(fileCore(logDir))
+		return zap.New(fileCore(logDir), opts...)
 	}
 	return zap.New(
 		zapcore.NewTee(
 			fileCore(logDir),
 			consoleCore(),
 		),
+		opts...,
 	)
 }
 
@@ -30,11 +35,11 @@ func fileCore(logDir string) zapcore.Core {
 	encodeConfig := zapcore.EncoderConfig{
 		MessageKey:     "message",
 		LevelKey:       "level",
-		TimeKey:        "time",
+		TimeKey:        "timestamp",
 		NameKey:        "Name",
-		CallerKey:      "Caller",
-		FunctionKey:    "Function",
-		StacktraceKey:  "trace",
+		CallerKey:      "caller",
+		FunctionKey:    "function",
+		StacktraceKey:  "stack",
 		SkipLineEnding: false,
 		LineEnding:     "",
 		EncodeLevel:    zapcore.CapitalLevelEncoder,
