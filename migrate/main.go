@@ -1,6 +1,8 @@
 package main
 
 import (
+	"app/config"
+	"app/logger"
 	"embed"
 	"fmt"
 
@@ -8,9 +10,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"go.uber.org/zap"
-
-	"app/config"
-	"app/logger"
 )
 
 var migrationPath = "migrations"
@@ -39,7 +38,22 @@ func main() {
 		logger.Fatal("could not create migration source instance", zap.Error(err))
 	}
 
+	version, dirty, err := m.Version()
+	if err != nil {
+		logger.Fatal("could not get the current migration version", zap.Error(err))
+	}
+
+	logger.Info("migration information before migration", zap.Uint("version", version), zap.Bool("is_dirty", dirty))
+
 	if err = m.Up(); err != nil {
 		logger.Fatal("could not migrate up", zap.Error(err))
 	}
+
+	logger.Info("successfully migrated the source")
+	version, dirty, err = m.Version()
+	if err != nil {
+		logger.Fatal("could not get the current migration version", zap.Error(err))
+	}
+
+	logger.Info("migration information after migration", zap.Uint("version", version), zap.Bool("is_dirty", dirty))
 }
