@@ -67,7 +67,7 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) erro
 }
 
 const updateUserPassword = `-- name: UpdateUserPassword :exec
-UPDATE users 
+UPDATE users
 SET password_hash = $2
 WHERE email = $1
 `

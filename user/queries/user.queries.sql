@@ -15,6 +15,6 @@ INSERT INTO users (
 VALUES ($1, $2, $3, $4, $5, $6);
 
 -- name: UpdateUserPassword :exec
-UPDATE users 
+UPDATE users
 SET password_hash = $2
 WHERE email = $1;
