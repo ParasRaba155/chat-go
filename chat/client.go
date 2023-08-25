@@ -51,7 +51,7 @@ type client struct {
 	senderMail string
 
 	// email address of the reciver
-	reciverMail string
+	receiverMail string
 
 	redis *redis.Client
 }
@@ -118,7 +118,7 @@ func (c *client) writePump(l *zap.Logger) {
 			if err != nil {
 				return
 			}
-            defer w.Close()
+			defer w.Close()
 
 			w.Write(message)
 
@@ -148,27 +148,27 @@ func Handler(l *zap.Logger, rc *redis.Client, w http.ResponseWriter, r *http.Req
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		l.Error("upgrading to websocket failed", zap.Error(err))
-        w.Write([]byte("could not proccess the websocket request"))
-        w.WriteHeader(http.StatusInternalServerError)
-        return 
+		w.Write([]byte("could not process the websocket request"))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-    roomID, err := uuid.NewRandom()
-    if err != nil {
-        l.Error("error generating room id", zap.Error(err))
-        w.Write([]byte(""))
-        w.WriteHeader(http.StatusInternalServerError)
-        return 
-    }
+	roomID, err := uuid.NewRandom()
+	if err != nil {
+		l.Error("error generating room id", zap.Error(err))
+		w.Write([]byte(""))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	room := NewRoom(roomID)
 	go room.Run(l)
 
-	reciver, ok := mux.Vars(r)["receiver"]
+	receiver, ok := mux.Vars(r)["receiver"]
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("no receiver"))
-        return 
+		return
 	}
 
 	user := http_util.GetUserFromRequestContext(r)
@@ -178,7 +178,7 @@ func Handler(l *zap.Logger, rc *redis.Client, w http.ResponseWriter, r *http.Req
 		conn:        conn,
 		send:        make(chan []byte, 256),
 		senderMail:  user.Email,
-		reciverMail: reciver,
+		receiverMail: receiver,
 		redis:       rc,
 	}
 	l.Debug("registering client in room")
